@@ -18,34 +18,70 @@
 <div>
     <textarea id="output" rows="10" cols="50"></textarea>
 </div>
-<canvas id="chart" width="400" height="400"></canvas>
+<canvas id="chartBuy" width="400" height="400"></canvas>
+<canvas id="chartSell" width="400" height="400"></canvas>
 <script>
-    $.getJSON("https://ncpc9lg1oe.execute-api.eu-west-1.amazonaws.com/prod").done(function(result){
-        $("#output").val(JSON.stringify(result));
-        alert(JSON.stringify(result));
-        var ctx = $("#chart");
-        var chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                datasets: [{
-                    label: 'Scatter Dataset',
-                    data: [{
-                        x: -10,
-                        y: 0
-                    }, {
-                        x: 0,
-                        y: 10
-                    }, {
-                        x: 10,
-                        y: 5
-                    }]
-                }]
-            },
-            options: {
-                responsive: false
-            }
+    function load() {
+        $.getJSON("https://ncpc9lg1oe.execute-api.eu-west-1.amazonaws.com/prod").done(function (result) {
+            $("#output").val(JSON.stringify(result));
+            console.log("labels: " + JSON.stringify(result.map(function (e) {
+                        return e[2]
+                    })));
+            console.log("data: " + JSON.stringify(result.map(function (e) {
+                        return e[1]
+                    })));
+            new Chart($("#chartBuy"), {
+                type: 'line',
+                label: "Most Popular Stocks - BUY",
+                data: {
+                    labels: result.filter(function (e) {
+                        return e[0] === "BUY";
+                    }).map(function (e) {
+                        return e[2]
+                    }),
+                    datasets: [
+                        {
+                            label: "BUY",
+                            backgroundColor: "green",
+                            data: result.filter(function (e) {
+                                return e[0] === "BUY";
+                            }).map(function (e) {
+                                return e[1];
+                            })
+                        }]
+                },
+                options: {
+                    responsive: false
+                }
+            });
+            new Chart($("#chartSell"), {
+                type: 'line',
+                label: "Most Popular Stocks -SELL",
+                data: {
+                    labels: result.filter(function (e) {
+                        return e[0] === "SELL";
+                    }).map(function (e) {
+                        return e[2]
+                    }),
+                    datasets: [
+                        {
+                            label: "SELL",
+                            backgroundColor: "blue",
+                            data: result.filter(function (e) {
+                                return e[0] === "SELL";
+                            }).map(function (e) {
+                                return e[1];
+                            })
+                        }]
+                },
+                options: {
+                    responsive: false
+                }
+            });
         });
-    });
+        setTimeout(load(), 5000);
+    }
+    load();
 </script>
 </body>
 </html>
